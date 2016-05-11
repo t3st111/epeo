@@ -1,4 +1,5 @@
 [
 {"module" : "enviroment"},
+{"module" : "kl.py"}
 {"module" : "dirlister"}
 ]
