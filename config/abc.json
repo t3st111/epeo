@@ -1,5 +1,3 @@
 [
-{"module" : "enviroment"},
-{"module" : "kl"},
-{"module" : "dirlister"}
+{"module" : "kl"}
 ]
